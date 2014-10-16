@@ -42,11 +42,11 @@ while x == 0 :
 
 	print parsed['opaResponse']['results']['result'][0]['naId']
 	print parsed['opaResponse']['results']['result'][0]['objects']['object']['file']['@url']
-	print "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in history: \"" +  parsed['opaResponse']['results']['result'][0]['description']['item']['title'] [0:54] + "...\" http://research.archives.gov/description/" + parsed['opaResponse']['results']['result'][0]['naId']
+	print "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year'] + ": \"" +  parsed['opaResponse']['results']['result'][0]['description']['item']['title'] [0:57] + "...\" uat.research.archives.gov/id/" + parsed['opaResponse']['results']['result'][0]['naId']
 
 # Here's the actual posting of the tweet, using tweepy's syntax. The title field is automatically truncated at 54 characters, so that the tweets are all 140 characters exactly, or less. Right now, this adds an ellipsis automatically, even if truncation wasn't necessary. OPA URLs are created programmatically using the NAID.
 
-	api.update_status("Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in history: \"" + parsed['opaResponse']['results']['result'][0]['description']['item']['title'] [0:54] + "...\" http://research.archives.gov/description/" + parsed['opaResponse']['results']['result'][0]['naId'])
+	api.update_status("Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year'] + ": \"" + parsed['opaResponse']['results']['result'][0]['description']['item']['title'] [0:57] + "...\" uat.research.archives.gov/id/" + parsed['opaResponse']['results']['result'][0]['naId'])
 	
 # This tells the script to run the bit inside the while loop again, randomly generating a new tweet every 10 minutes. 
 
