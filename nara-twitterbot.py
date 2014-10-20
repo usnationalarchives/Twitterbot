@@ -52,7 +52,7 @@ rowsurl = 'https://uat.research.archives.gov/api/v1/?resultTypes=item&rows=1&des
 rowsparse = json.loads(requests.get(rowsurl).text)
 rows = rowsparse['opaResponse']['results']['total'] - 1
 
-print "There were *" + str(rows) + "* records found for this run using the following search query:" + rowsurl
+print "----\nThere were *" + str(rows) + "* records found for this run using the following search query:\n\n" + rowsurl + "\n----"
 
 # The hackish way to make this script continue infinitely.
 
@@ -68,6 +68,8 @@ while x == 0 :
 	tweet = requests.get(geturl)
 	parsed = json.loads(tweet.text)
 	
+# Setting title, NAID, and year for readability later on.
+	
 	title = parsed['opaResponse']['results']['result'][0]['description']['item']['title']
 	NAID = parsed['opaResponse']['results']['result'][0]['naId']
 	year = parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year']
@@ -76,14 +78,14 @@ while x == 0 :
 
 	if loweryear < int(year) < upperyear :
 
-# This prints the image URL and tweet text just so we can watch the bot in the command line as it works.
+# This prints the image URL and tweet text just so we can watch the bot in the command line as it works. It will print before actually posting the tweet, so that if there is an error, we can see what the last tweet it tried was.
 		
-		print parsed['opaResponse']['results']['result'][0]['objects']['object']['file']['@url']
-		print "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ": \"" +  title [0:57] + "...\" uat.research.archives.gov/id/" + NAID if len(title) > 57 else "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + title + "...\" uat.research.archives.gov/id/" + NAID
+		print "\n\n" + parsed['opaResponse']['results']['result'][0]['objects']['object']['file']['@url']
+		print "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ": \"" +  title [0:57] + "...\" uat.research.archives.gov/id/" + NAID if len(title) > 60 else "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + title + "\" uat.research.archives.gov/id/" + NAID
 
-# Here's the actual posting of the tweet, using tweepy's syntax. The title field is automatically truncated at 54 characters, so that the tweets are all 140 characters exactly, or less. Right now, this adds an ellipsis automatically, even if truncation wasn't necessary. OPA URLs are created programmatically using the NAID.
+# Here's the actual posting of the tweet, using tweepy. If the title is already 60 characters or less, it does not truncate. Otherwise, the title field is automatically truncated at 57 characters (the extra three characters for the "..."), so that the tweets are all 140 characters exactly, or less.
 
-		api.update_status("Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ": \"" +  title [0:57] + "...\" uat.research.archives.gov/id/" + NAID if len(title) > 57 else "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + title + "...\" uat.research.archives.gov/id/" + NAID)
+		api.update_status("Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ": \"" +  title [0:57] + "...\" uat.research.archives.gov/id/" + NAID if len(title) > 60 else "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + title + "\" uat.research.archives.gov/id/" + NAID)
 	
 # This tells the script to run the bit inside the while loop again, randomly generating a new tweet every 10 minutes. 
 
