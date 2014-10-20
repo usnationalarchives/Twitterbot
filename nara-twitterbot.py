@@ -44,7 +44,7 @@ rate = 600
 if args.rate :
 	rate = int(args.rate) * 60
 
-# This part takes today's date and uses it to generate the OPA API query based on the month and day. This first API query is just to find out the number of results in the result set, and the rest is not used. We are searching for items with the record type of "Photographs and other Graphic Materials (NAID 10035674), produced on the current day and month. Then we parse the JSON and extract the total number of results for the query. We print the total results in the command line. for the user's information.
+# This part takes today's date and uses it to generate the OPA API query based on the month and day. This first API query is just to find out the number of results in the result set, and the rest is not used. We are searching for items with the record type of "Photographs and other Graphic Materials (NAID 10035674), produced on the current day and month. Then we parse the JSON and extract the total number of results for the query. We print the total results and API call in the command line for the user's information.
 
 d = date.today()
 
@@ -52,7 +52,7 @@ rowsurl = 'https://uat.research.archives.gov/api/v1/?resultTypes=item&rows=1&des
 rowsparse = json.loads(requests.get(rowsurl).text)
 rows = rowsparse['opaResponse']['results']['total'] - 1
 
-print "There were *" + str(rows) + "* records found for this run."
+print "There were *" + str(rows) + "* records found for this run using the following search query:" + rowsurl
 
 # The hackish way to make this script continue infinitely.
 
@@ -67,19 +67,23 @@ while x == 0 :
 
 	tweet = requests.get(geturl)
 	parsed = json.loads(tweet.text)
+	
+	title = parsed['opaResponse']['results']['result'][0]['description']['item']['title']
+	NAID = parsed['opaResponse']['results']['result'][0]['naId']
+	year = parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year']
 
 # Because OPA's API does not have range searching enabled for this field, we are limiting the year manually, by using this if statement to make the script re-run the search with a new random integer until it finds a result within the range.
 
-	if loweryear < int(parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year']) < upperyear :
+	if loweryear < int(year) < upperyear :
 
 # This prints the image URL and tweet text just so we can watch the bot in the command line as it works.
 		
 		print parsed['opaResponse']['results']['result'][0]['objects']['object']['file']['@url']
-		print "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year'] + ": \"" +  parsed['opaResponse']['results']['result'][0]['description']['item']['title'] [0:57] + "...\" uat.research.archives.gov/id/" + parsed['opaResponse']['results']['result'][0]['naId']
+		print "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ": \"" +  title [0:57] + "...\" uat.research.archives.gov/id/" + NAID if len(title) > 57 else "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + title + "...\" uat.research.archives.gov/id/" + NAID
 
 # Here's the actual posting of the tweet, using tweepy's syntax. The title field is automatically truncated at 54 characters, so that the tweets are all 140 characters exactly, or less. Right now, this adds an ellipsis automatically, even if truncation wasn't necessary. OPA URLs are created programmatically using the NAID.
 
-		api.update_status("Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year'] + ": \"" + parsed['opaResponse']['results']['result'][0]['description']['item']['title'] [0:57] + "...\" uat.research.archives.gov/id/" + parsed['opaResponse']['results']['result'][0]['naId'])
+		api.update_status("Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ": \"" +  title [0:57] + "...\" uat.research.archives.gov/id/" + NAID if len(title) > 57 else "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + title + "...\" uat.research.archives.gov/id/" + NAID)
 	
 # This tells the script to run the bit inside the while loop again, randomly generating a new tweet every 10 minutes. 
 
@@ -88,4 +92,4 @@ while x == 0 :
 # When the script encounters a result outside of a date range specified, it prints the NAID and year and immediately restarts without sleeping. This is how it retries continuously until it finds a record within the range.
 
 	else :
-		print "Found NAID " + parsed['opaResponse']['results']['result'][0]['naId'] + " from " + parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year'] + ". Repeating..."
+		print "Found NAID " + NAID + " from " + year + ". Repeating..."
