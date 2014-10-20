@@ -33,8 +33,7 @@ You can also use several optional arguments to change the bot's parameters.
 ### Arguments
 
 There are 4 optional arguments: `rate`, `keyword`, `loweryear`, and `upperyear`.
-```
-`rate`: This is an integer value which will set the rate of how often the bot tweets. The unit is minutes. For example, use `python nara-twitterbot.py --rate 2` to make the bot tweet every 2 minutes. If omitted, the bot will tweet every 10 minutes.
-`keyword`: This is a string which will limit the records the bot tweets to only ones matching with that keyword. For example, use the command `python nara-twitterbot.py --keyword navy` if you want the bot to only tweet about records with the keyword "navy" (for an anniversary, for example).
-`loweryear` and `upperyear`: These are integer values which can be used to specify the date range for the records you would like to tweet. If omitted, `loweryear` defaults to 0 (e.g. no lower limit) and `upperyear` defaults to 9999 (e.g. no upper limit). For example, `python nara-twitterbot.py --loweryear 1941 --upperyear 1945` will only tweet records from the years 1942, 1943, and 1944.
-```
+
+- `rate`: This is an integer value which will set the rate of how often the bot tweets. The unit is minutes. For example, use `python nara-twitterbot.py --rate 2` to make the bot tweet every 2 minutes. If omitted, the bot will tweet every 10 minutes.
+- `keyword`: This is a string which will limit the records the bot tweets to only ones matching with that keyword. For example, use the command `python nara-twitterbot.py --keyword navy` if you want the bot to only tweet about records with the keyword "navy" (for an anniversary, for example).
+- `loweryear` and `upperyear`: These are integer values which can be used to specify the date range for the records you would like to tweet. If omitted, `loweryear` defaults to 0 (e.g. no lower limit) and `upperyear` defaults to 9999 (e.g. no upper limit). For example, `python nara-twitterbot.py --loweryear 1941 --upperyear 1945` will only tweet records from the years 1942, 1943, and 1944.
