@@ -13,7 +13,7 @@
 #
 # To run the script, just use "python nara-twitterbot.py". This will post the tweets using search results for random NARA photographic item records on the current date in history. You can also use an optional argument to limit searches to a given keyword. For example, use the command "python nara-twitterbot.py eisenhower" if you want the bot to only tweet about records with the keyword "Eisenhower" (for an anniversary, for example).
 
-import settings, tweepy, requests, json, datetime, random, time, sys
+import settings, tweepy, requests, json, datetime, random, time, sys, argparse
 from datetime import date
 
 # This is where the script logs into the Twitter API using your application's settings.
@@ -24,12 +24,18 @@ api = tweepy.API(auth)
 
 # Here we read the optional argument given. If it's not given, the variable "q" is set to null, but if it is present, we use the argument to generate the keyword parameter for the OPA API call later on.
 
-qarg = str(sys.argv[1])
-
-if qarg :
-	q = "&q=" + qarg
-else :
-	q = ""
+q = ""
+parser = argparse.ArgumentParser()
+parser.add_argument('--keyword', dest='keyword', metavar='KEYWORD',
+                    action='store')
+parser.add_argument('--upperyear', dest='upperyear', metavar='UPPERYEAR',
+                    action='store')
+parser.add_argument('--loweryear', dest='loweryear', metavar='LOWERYEAR',
+                    action='store')
+args = parser.parse_args()
+                    
+if args.keyword :
+	q = "&q=" + args.keyword	
 
 # This part takes today's date and uses it to generate the OPA API query based on the month and day. This first API query is just to find out the number of results in the result set, and the rest is not used. We are searching for items with the record type of "Photographs and other Graphic Materials (NAID 10035674), produced on the current day and month. Then we parse the JSON and extract the total number of results for the query.
 
@@ -53,16 +59,22 @@ while x == 0 :
 	tweet = requests.get(geturl)
 	parsed = json.loads(tweet.text)
 
-# This prints the NAID, image URL, and tweet text just so we can watch the bot in the command line as it works.
+	if int(args.loweryear) < int(parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year']) < int(args.upperyear) :
 
-	print parsed['opaResponse']['results']['result'][0]['naId']
-	print parsed['opaResponse']['results']['result'][0]['objects']['object']['file']['@url']
-	print "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year'] + ": \"" +  parsed['opaResponse']['results']['result'][0]['description']['item']['title'] [0:57] + "...\" uat.research.archives.gov/id/" + parsed['opaResponse']['results']['result'][0]['naId']
+# This prints the NAID, image URL, and tweet text just so we can watch the bot in the command line as it works.
+		
+		print args.loweryear + args.upperyear
+		print parsed['opaResponse']['results']['result'][0]['naId']
+		print parsed['opaResponse']['results']['result'][0]['objects']['object']['file']['@url']
+		print "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year'] + ": \"" +  parsed['opaResponse']['results']['result'][0]['description']['item']['title'] [0:57] + "...\" uat.research.archives.gov/id/" + parsed['opaResponse']['results']['result'][0]['naId']
 
 # Here's the actual posting of the tweet, using tweepy's syntax. The title field is automatically truncated at 54 characters, so that the tweets are all 140 characters exactly, or less. Right now, this adds an ellipsis automatically, even if truncation wasn't necessary. OPA URLs are created programmatically using the NAID.
 
-	api.update_status("Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year'] + ": \"" + parsed['opaResponse']['results']['result'][0]['description']['item']['title'] [0:57] + "...\" uat.research.archives.gov/id/" + parsed['opaResponse']['results']['result'][0]['naId'])
+		api.update_status("Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year'] + ": \"" + parsed['opaResponse']['results']['result'][0]['description']['item']['title'] [0:57] + "...\" uat.research.archives.gov/id/" + parsed['opaResponse']['results']['result'][0]['naId'])
 	
 # This tells the script to run the bit inside the while loop again, randomly generating a new tweet every 10 minutes. 
 
-	time.sleep(600)
+		time.sleep(600)
+	
+	else :
+		print "Found NAID " + parsed['opaResponse']['results']['result'][0]['naId'] + " from " + parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year'] + ". Repeating..."
