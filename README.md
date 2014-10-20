@@ -1,15 +1,15 @@
-# NARA-twitterbot
+# Automagical Today's Document
 ===============
 
-This is a Twitter bot created to experiment with using NARA's test API (https://uat.research.archives.gov/api/v1/).
+This is a Twitter bot created to experiment with using the [https://uat.research.archives.gov/api/v1/](National Archives online catalog's test API).
 
-The script tweets out titles and links to NARA photographic item records from the current date in history, selected at random. It has optional arguments for a keyword and date ranges to restrict the set of results the bot selects from. The rate at which the bot tweets is also configurable.
+The script tweets out titles and links to NARA photographic item records from the current date in history, selected at random. It has optional arguments for a keyword and date ranges to restrict the set of results the bot selects from. The rate at which the bot tweets is also configurable. This is a mechanical version of NARA's [http://todaysdocument.tumblr.com/](Today's Document).
 
 The bot works by constructing a fielded search query to NARA's online catalog API using the parameters provided, and then extracting the necessary metadata fields to form the tweet. Titles are currently truncated if over 60 characters so that tweets are kept at 140 or less.
 
 ## Dependencies
 
-This script relies on python with the `tweepy` (https://github.com/tweepy/tweepy) library, which can be installed with `easy_install` or `pip`. Note, `tweepy` only works with python 2.6 and 2.7.
+This script relies on python with the [https://github.com/tweepy/tweepy](`tweepy`) library, which can be installed with `easy_install` or `pip`. Note, `tweepy` only works with python 2.6 and 2.7.
 
 The script also requires a Twitter account set up to post via the API. You'll have to create an application at https://apps.twitter.com/ to get the credential keys for the setup. There is a one-time authentication process for setting up the application for "Read and Write" permissions.
 
