@@ -1,19 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-###### INSTRUCTIONS ######
-#
-#This script relies on tweepy (https://github.com/tweepy/tweepy), which can be installed with easy_install or pip.
-#
-# "settings" is imported from a settings.py file I created in the same directory, so that the script can be shared without revealing credentials for my Twitter account. The settings file looks like (with credentials filled in):
-## CONSUMER_KEY = 'XXX'
-## CONSUMER_SECRET = 'XXX'
-## ACCESS_KEY = 'XXX'
-## ACCESS_SECRET = 'XXX'
-#
-# To run the script, just use "python nara-twitterbot.py". This will post the tweets using search results for random NARA photographic item records on the current date in history. You can also use an optional argument to limit searches to a given keyword. For example, use the command "python nara-twitterbot.py eisenhower" if you want the bot to only tweet about records with the keyword "Eisenhower" (for an anniversary, for example).
-
-import settings, tweepy, requests, json, datetime, random, time, sys, argparse
+import settings, tweepy, requests, json, datetime, random, time, argparse
 from datetime import date
 
 # This is where the script logs into the Twitter API using your application's settings.
@@ -22,9 +10,8 @@ auth = tweepy.OAuthHandler(settings.CONSUMER_KEY, settings.CONSUMER_SECRET)
 auth.set_access_token(settings.ACCESS_KEY, settings.ACCESS_SECRET)
 api = tweepy.API(auth)
 
-# Here we read the optional argument given. If it's not given, the variable "q" is set to null, but if it is present, we use the argument to generate the keyword parameter for the OPA API call later on.
+# Here we read the optional arguments given.
 
-q = ""
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyword', dest='keyword', metavar='KEYWORD',
                     action='store')
@@ -35,24 +22,29 @@ parser.add_argument('--loweryear', dest='loweryear', metavar='LOWERYEAR',
 parser.add_argument('--rate', dest='rate', metavar='RATE',
                     action='store')
 args = parser.parse_args()
-                    
+
+# If a keyword is not given, the variable "q" is set to null, but if it is present, we use the argument to generate the keyword parameter for the OPA API call later on.
+
+q = ""                   
 if args.keyword :
 	q = "&q=" + args.keyword
 
-rate = 600
+# If a date range is not given, the variables "loweryear" and "upperyear" are set to 0 and 9999, respectively, but either or both arguments are present, we use them to set the boundaries of the search later on.
+
 loweryear = 0
 upperyear = 9999
-
 if args.upperyear :
 	upperyear = int(args.upperyear)
-	
 if args.loweryear :
 	loweryear = int(args.loweryear)
-	
+
+# If a rate is not given, the variable variable defaults to "600" (in seconds) for 10 minutes, but if it is present, we multiply by 60 to convert minutes to seconds.
+
+rate = 600
 if args.rate :
 	rate = int(args.rate) * 60
 
-# This part takes today's date and uses it to generate the OPA API query based on the month and day. This first API query is just to find out the number of results in the result set, and the rest is not used. We are searching for items with the record type of "Photographs and other Graphic Materials (NAID 10035674), produced on the current day and month. Then we parse the JSON and extract the total number of results for the query.
+# This part takes today's date and uses it to generate the OPA API query based on the month and day. This first API query is just to find out the number of results in the result set, and the rest is not used. We are searching for items with the record type of "Photographs and other Graphic Materials (NAID 10035674), produced on the current day and month. Then we parse the JSON and extract the total number of results for the query. We print the total results in the command line. for the user's information.
 
 d = date.today()
 
@@ -76,9 +68,11 @@ while x == 0 :
 	tweet = requests.get(geturl)
 	parsed = json.loads(tweet.text)
 
+# Because OPA's API does not have range searching enabled for this field, we are limiting the year manually, by using this if statement to make the script re-run the search with a new random integer until it finds a result within the range.
+
 	if loweryear < int(parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year']) < upperyear :
 
-# This prints the NAID, image URL, and tweet text just so we can watch the bot in the command line as it works.
+# This prints the image URL and tweet text just so we can watch the bot in the command line as it works.
 		
 		print parsed['opaResponse']['results']['result'][0]['objects']['object']['file']['@url']
 		print "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year'] + ": \"" +  parsed['opaResponse']['results']['result'][0]['description']['item']['title'] [0:57] + "...\" uat.research.archives.gov/id/" + parsed['opaResponse']['results']['result'][0]['naId']
@@ -90,6 +84,8 @@ while x == 0 :
 # This tells the script to run the bit inside the while loop again, randomly generating a new tweet every 10 minutes. 
 
 		time.sleep(rate)
-	
+
+# When the script encounters a result outside of a date range specified, it prints the NAID and year and immediately restarts without sleeping. This is how it retries continuously until it finds a record within the range.
+
 	else :
 		print "Found NAID " + parsed['opaResponse']['results']['result'][0]['naId'] + " from " + parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year'] + ". Repeating..."
