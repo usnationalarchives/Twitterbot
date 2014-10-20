@@ -5,7 +5,7 @@ This is a Twitter bot created to experiment with using NARA's test API (https://
 
 The script tweets out titles and links to NARA photographic item records from the current date in history, selected at random. It has optional arguments for a keyword and date ranges to restrict the set of results the bot selects from. The rate at which the bot tweets is also configurable.
 
-The bot works by constructing a fielded search query to NARA's online catalog API using the parameters provided, and then extracting the necessary metadata fields to form the tweet. Titles are currently truncated at 54 characters so that tweets are kept at 140 or less.
+The bot works by constructing a fielded search query to NARA's online catalog API using the parameters provided, and then extracting the necessary metadata fields to form the tweet. Titles are currently truncated if over 60 characters so that tweets are kept at 140 or less.
 
 ## Dependencies
 
