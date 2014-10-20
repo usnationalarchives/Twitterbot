@@ -35,7 +35,16 @@ parser.add_argument('--loweryear', dest='loweryear', metavar='LOWERYEAR',
 args = parser.parse_args()
                     
 if args.keyword :
-	q = "&q=" + args.keyword	
+	q = "&q=" + args.keyword
+	
+loweryear = 0
+upperyear = 9999
+
+if args.upperyear :
+	upperyear = int(args.upperyear)
+	
+if args.loweryear :
+	loweryear = int(args.loweryear)
 
 # This part takes today's date and uses it to generate the OPA API query based on the month and day. This first API query is just to find out the number of results in the result set, and the rest is not used. We are searching for items with the record type of "Photographs and other Graphic Materials (NAID 10035674), produced on the current day and month. Then we parse the JSON and extract the total number of results for the query.
 
@@ -59,12 +68,10 @@ while x == 0 :
 	tweet = requests.get(geturl)
 	parsed = json.loads(tweet.text)
 
-	if int(args.loweryear) < int(parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year']) < int(args.upperyear) :
+	if loweryear < int(parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year']) < upperyear :
 
 # This prints the NAID, image URL, and tweet text just so we can watch the bot in the command line as it works.
 		
-		print args.loweryear + args.upperyear
-		print parsed['opaResponse']['results']['result'][0]['naId']
 		print parsed['opaResponse']['results']['result'][0]['objects']['object']['file']['@url']
 		print "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year'] + ": \"" +  parsed['opaResponse']['results']['result'][0]['description']['item']['title'] [0:57] + "...\" uat.research.archives.gov/id/" + parsed['opaResponse']['results']['result'][0]['naId']
 
