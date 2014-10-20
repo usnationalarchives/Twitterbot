@@ -32,11 +32,14 @@ parser.add_argument('--upperyear', dest='upperyear', metavar='UPPERYEAR',
                     action='store')
 parser.add_argument('--loweryear', dest='loweryear', metavar='LOWERYEAR',
                     action='store')
+parser.add_argument('--rate', dest='rate', metavar='RATE',
+                    action='store')
 args = parser.parse_args()
                     
 if args.keyword :
 	q = "&q=" + args.keyword
-	
+
+rate = 600
 loweryear = 0
 upperyear = 9999
 
@@ -45,6 +48,9 @@ if args.upperyear :
 	
 if args.loweryear :
 	loweryear = int(args.loweryear)
+	
+if args.rate :
+	rate = int(args.rate) * 60
 
 # This part takes today's date and uses it to generate the OPA API query based on the month and day. This first API query is just to find out the number of results in the result set, and the rest is not used. We are searching for items with the record type of "Photographs and other Graphic Materials (NAID 10035674), produced on the current day and month. Then we parse the JSON and extract the total number of results for the query.
 
@@ -53,6 +59,8 @@ d = date.today()
 rowsurl = 'https://uat.research.archives.gov/api/v1/?resultTypes=item&rows=1&description.item.generalRecordsTypeArray.generalRecordsType.naId=10035674&description.item.productionDateArray.proposableQualifiableDate.month=' + str(d.month) + '&description.item.productionDateArray.proposableQualifiableDate.day=' + str(d.day) + q
 rowsparse = json.loads(requests.get(rowsurl).text)
 rows = rowsparse['opaResponse']['results']['total'] - 1
+
+print "There were *" + str(rows) + "* records found for this run."
 
 # The hackish way to make this script continue infinitely.
 
@@ -81,7 +89,7 @@ while x == 0 :
 	
 # This tells the script to run the bit inside the while loop again, randomly generating a new tweet every 10 minutes. 
 
-		time.sleep(600)
+		time.sleep(rate)
 	
 	else :
 		print "Found NAID " + parsed['opaResponse']['results']['result'][0]['naId'] + " from " + parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year'] + ". Repeating..."
