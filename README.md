@@ -15,7 +15,7 @@ The script also requires a Twitter account set up to post via the API. You'll ha
 
 ## Setup
 
-`settings` is imported from a settings.py file which is saved in the same directory as the script, so that the script can be shared without revealing credentials for the Twitter account. The settings file looks like (with credentials filled in):
+`settings` is imported from a `settings.py` file which is saved in the same directory as the script, so that the script can be shared without revealing credentials for the Twitter account. The settings file looks like (with credentials filled in):
 
 ```python
 CONSUMER_KEY = 'XXX'
@@ -26,7 +26,7 @@ ACCESS_SECRET = 'XXX'
 
 ## Instructions
 
-To run the script, just use `python nara-twitterbot.py`. In the command line window, the script will display the number of results it is randomly selecting from for the search for that day's date and any other options used. It will then print the text of each tweet as it tweets it.
+To run the script, just use `python automagical_today's_document.py`. In the command line window, the script will display the number of results it is randomly selecting from for the search for that day's date and any other options used. It will then print the text of each tweet as it tweets it.
 
 You can also use several optional arguments to change the bot's parameters.
 
@@ -34,6 +34,6 @@ You can also use several optional arguments to change the bot's parameters.
 
 There are 4 optional arguments: `rate`, `keyword`, `loweryear`, and `upperyear`.
 
-- `rate`: This is an integer value which will set the rate of how often the bot tweets. The unit is minutes. For example, use `python nara-twitterbot.py --rate 2` to make the bot tweet every 2 minutes. If omitted, the bot will tweet every 10 minutes.
-- `keyword`: This is a string which will limit the records the bot tweets to only ones matching with that keyword. For example, use the command `python nara-twitterbot.py --keyword navy` if you want the bot to only tweet about records with the keyword "navy" (for an anniversary, for example).
-- `loweryear` and `upperyear`: These are integer values which can be used to specify the date range for the records you would like to tweet. If omitted, `loweryear` defaults to 0 (e.g. no lower limit) and `upperyear` defaults to 9999 (e.g. no upper limit). For example, `python nara-twitterbot.py --loweryear 1941 --upperyear 1945` will only tweet records from the years 1942, 1943, and 1944.
+- `rate`: This is an integer value which will set the rate of how often the bot tweets. The unit is minutes. For example, use `python automagical_today's_document.py --rate 2` to make the bot tweet every 2 minutes. If omitted, the bot will tweet every 10 minutes.
+- `keyword`: This is a string which will limit the records the bot tweets to only ones matching with that keyword. For example, use the command `python automagical_today's_document.py --keyword navy` if you want the bot to only tweet about records with the keyword "navy" (for an anniversary, for example).
+- `loweryear` and `upperyear`: These are integer values which can be used to specify the date range for the records you would like to tweet. If omitted, `loweryear` defaults to 0 (e.g. no lower limit) and `upperyear` defaults to 9999 (e.g. no upper limit). For example, `python automagical_today's_document.py --loweryear 1941 --upperyear 1945` will only tweet records from the years 1942, 1943, and 1944.
