@@ -73,6 +73,8 @@ while x == 0 :
 	title = parsed['opaResponse']['results']['result'][0]['description']['item']['title']
 	NAID = parsed['opaResponse']['results']['result'][0]['naId']
 	year = parsed['opaResponse']['results']['result'][0]['description']['item']['productionDateArray']['proposableQualifiableDate']['year']
+	imageurl = parsed['opaResponse']['results']['result'][0]['objects']['object']['file']['@url']
+	filename = str(parsed['opaResponse']['results']['result'][0]['objects']['object']['file']['@name'])
 
 # Because OPA's API does not have range searching enabled for this field, we are limiting the year manually, by using this if statement to make the script re-run the search with a new random integer until it finds a result within the range.
 
@@ -80,13 +82,18 @@ while x == 0 :
 
 # This prints the image URL and tweet text just so we can watch the bot in the command line as it works. It will print before actually posting the tweet, so that if there is an error, we can see what the last tweet it tried was.
 		
-		print "\n\n" + parsed['opaResponse']['results']['result'][0]['objects']['object']['file']['@url']
-		print "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ": \"" +  title [0:57] + "...\" uat.research.archives.gov/id/" + NAID if len(title) > 60 else "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + title + "\" uat.research.archives.gov/id/" + NAID
+		print "\n\n" + imageurl
+		print "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ": \"" +  title [0:34] + "...\" uat.research.archives.gov/id/" + NAID if len(title) > 37 else "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + title + "\" uat.research.archives.gov/id/" + NAID
+
+		r = requests.get(imageurl, stream=True)
+		with open(filename, "wb") as image :
+			image.write(r.content)
+
 
 # Here's the actual posting of the tweet, using tweepy. If the title is already 60 characters or less, it does not truncate. Otherwise, the title field is automatically truncated at 57 characters (the extra three characters for the "..."), so that the tweets are all 140 characters exactly, or less.
 
-		api.update_status("Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ": \"" +  title [0:57] + "...\" uat.research.archives.gov/id/" + NAID if len(title) > 60 else "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + title + "\" uat.research.archives.gov/id/" + NAID)
-	
+		api.update_with_media(filename, "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ": \"" +  title [0:34] + "...\" uat.research.archives.gov/id/" + NAID if len(title) > 37 else "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + title + "\" uat.research.archives.gov/id/" + NAID)
+		
 # This tells the script to run the bit inside the while loop again, randomly generating a new tweet every 10 minutes. 
 
 		time.sleep(rate)
