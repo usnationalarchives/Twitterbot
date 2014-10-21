@@ -68,7 +68,7 @@ while x == 0 :
 	tweet = requests.get(geturl)
 	parsed = json.loads(tweet.text)
 	
-# Setting title, NAID, and year for readability later on.
+# Setting title, NAID, year, image url, and name for readability later on.
 	
 	title = parsed['opaResponse']['results']['result'][0]['description']['item']['title']
 	NAID = parsed['opaResponse']['results']['result'][0]['naId']
@@ -85,6 +85,8 @@ while x == 0 :
 		print "\n\nImage found to tweet:   " + imageurl
 		print "Text of tweet:   'On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n\"" +  title [0:42] + "...\" #OTD #TDiH\nuat.research.archives.gov/id/" + NAID + "'" if len(title) > 45 else "Text of tweet:          'On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n                       \"" +  title + "\" #OTD #TDiH\n                       uat.research.archives.gov/id/" + NAID + "'"
 
+# This will download the file using the URL from the query.
+
 		r = requests.get(imageurl, stream=True)
 		with open(filename, "wb") as image :
 			image.write(r.content)
@@ -92,6 +94,8 @@ while x == 0 :
 # Here's the actual posting of the tweet, using tweepy. If the title is already 60 characters or less, it does not truncate. Otherwise, the title field is automatically truncated at 57 characters (the extra three characters for the "..."), so that the tweets are all 140 characters exactly, or less.
 
 		api.update_with_media(filename, "On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n\"" +  title [0:42] + "...\" #OTD #TDiH\nuat.research.archives.gov/id/" + NAID if len(title) > 45 else "On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n\"" +  title + "\" #OTD #TDiH\nuat.research.archives.gov/id/" + NAID)
+		
+# Wait until after successful update to print "posted" in command line, and then delete the file it downloaded.
 		print "...posted!"
 		os.remove(filename)
 		
@@ -102,4 +106,4 @@ while x == 0 :
 # When the script encounters a result outside of a date range specified, it prints the NAID and year and immediately restarts without sleeping. This is how it retries continuously until it finds a record within the range.
 
 	else :
-		print "Found NAID " + NAID + " from " + year + ". Repeating..."
+		print "                       Found NAID " + NAID + " from " + year + ". Repeating..."
