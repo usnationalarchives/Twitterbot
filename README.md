@@ -3,9 +3,11 @@
 
 This is a Twitter bot created to experiment with using the [National Archives online catalog's test API](https://uat.research.archives.gov/api/v1/).
 
-The script tweets out titles and links to NARA photographic item records from the current date in history, selected at random. It has optional arguments for a keyword and date ranges to restrict the set of results the bot selects from. The rate at which the bot tweets is also configurable. This is a mechanical version of NARA's [Today's Document](http://todaysdocument.tumblr.com/).
+The script tweets out the year, title, image, and link to NARA photographic item records from the current date in history, selected at random. It has optional arguments for a keyword and date ranges to restrict the set of results the bot selects from. The rate at which the bot tweets is also configurable. This is a mechanical version of NARA's [Today's Document](http://todaysdocument.tumblr.com/).
 
-The bot works by constructing a fielded search query to NARA's online catalog API using the parameters provided, and then extracting the necessary metadata fields to form the tweet. Titles are currently truncated if over 60 characters so that tweets are kept at 140 or less.
+The bot works by constructing a fielded search query to NARA's online catalog API using the parameters provided, and then extracting the necessary metadata fields to form the tweet. It writes the image file locally in order to upload it to Twitter, then deleted it after each tweet. Titles are currently truncated if over 45 characters so that tweets are kept at 140 or less.
+
+The script does not yet have much error handling, and there are many special cases that may kill it. You can see the recent testing at [@dailynarabot](https://twitter.com/dailynarabot).
 
 ## Dependencies
 
