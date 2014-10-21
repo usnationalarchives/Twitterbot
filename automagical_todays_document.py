@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import settings, tweepy, requests, json, datetime, random, time, argparse, os
-from datetime import date
+from datetime import date, datetime
 
 # This is where the script logs into the Twitter API using your application's settings.
 
@@ -96,7 +96,7 @@ while x == 0 :
 		api.update_with_media(filename, "On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n\"" +  title [0:42] + "...\" #OTD #TDiH\nuat.research.archives.gov/id/" + NAID if len(title) > 45 else "On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n\"" +  title + "\" #OTD #TDiH\nuat.research.archives.gov/id/" + NAID)
 		
 # Wait until after successful update to print "posted" in command line, and then delete the file it downloaded.
-		print "                            ...posted!"
+		print "                            ...posted! (at " + str(datetime.now()) + ")"
 		os.remove(filename)
 		
 # This tells the script to run the bit inside the while loop again, randomly generating a new tweet every 10 minutes. 
