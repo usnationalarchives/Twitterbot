@@ -82,8 +82,8 @@ while x == 0 :
 
 # This prints the image URL and tweet text just so we can watch the bot in the command line as it works. It will print before actually posting the tweet, so that if there is an error, we can see what the last tweet it tried was.
 		
-		print "\n\nImage found to tweet:   " + imageurl
-		print "Text of tweet:   'On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n\"" +  title [0:42] + "...\" #OTD #TDiH\nuat.research.archives.gov/id/" + NAID + "'" if len(title) > 45 else "Text of tweet:          'On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n                       \"" +  title + "\" #OTD #TDiH\n                       uat.research.archives.gov/id/" + NAID + "'"
+		print "\n\nImage found to tweet:   " + imageurl + "\n"
+		print "Text of tweet:          On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n                        \"" +  title [0:42] + "...\" #OTD #TDiH\n                        uat.research.archives.gov/id/" + NAID if len(title) > 45 else "Text of tweet:          On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n                        \"" +  title + "\" #OTD #TDiH\n                        uat.research.archives.gov/id/" + NAID 
 
 # This will download the file using the URL from the query.
 
@@ -96,7 +96,7 @@ while x == 0 :
 		api.update_with_media(filename, "On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n\"" +  title [0:42] + "...\" #OTD #TDiH\nuat.research.archives.gov/id/" + NAID if len(title) > 45 else "On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n\"" +  title + "\" #OTD #TDiH\nuat.research.archives.gov/id/" + NAID)
 		
 # Wait until after successful update to print "posted" in command line, and then delete the file it downloaded.
-		print "...posted!"
+		print "                            ...posted!"
 		os.remove(filename)
 		
 # This tells the script to run the bit inside the while loop again, randomly generating a new tweet every 10 minutes. 
