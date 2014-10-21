@@ -82,8 +82,8 @@ while x == 0 :
 
 # This prints the image URL and tweet text just so we can watch the bot in the command line as it works. It will print before actually posting the tweet, so that if there is an error, we can see what the last tweet it tried was.
 		
-		print "\n\n" + imageurl
-		print "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ": \"" +  title [0:34] + "...\" uat.research.archives.gov/id/" + NAID if len(title) > 37 else "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + title + "\" uat.research.archives.gov/id/" + NAID
+		print "\n\n Image found to tweet:   " + imageurl
+		print "Text of tweet:   'Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ": \"" +  title [0:34] + "...\" uat.research.archives.gov/id/" + NAID + "'" if len(title) > 37 else "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + title + "\" uat.research.archives.gov/id/" + NAID + "'"
 
 		r = requests.get(imageurl, stream=True)
 		with open(filename, "wb") as image :
@@ -93,7 +93,7 @@ while x == 0 :
 # Here's the actual posting of the tweet, using tweepy. If the title is already 60 characters or less, it does not truncate. Otherwise, the title field is automatically truncated at 57 characters (the extra three characters for the "..."), so that the tweets are all 140 characters exactly, or less.
 
 		api.update_with_media(filename, "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ": \"" +  title [0:34] + "...\" uat.research.archives.gov/id/" + NAID if len(title) > 37 else "Here's a NARA record for today's date (" + str(d.month) + "/" + str(d.day) + ") in " + title + "\" uat.research.archives.gov/id/" + NAID)
-		
+		print "...posted!"
 # This tells the script to run the bit inside the while loop again, randomly generating a new tweet every 10 minutes. 
 
 		time.sleep(rate)
