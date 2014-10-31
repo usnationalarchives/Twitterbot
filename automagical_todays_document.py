@@ -104,7 +104,7 @@ while x == 0 :
 				with open(logfile, 'wt') as begin :
 					writelog = csv.writer(begin, delimiter= '\t')
 					writelog.writerow( ('Date', 'Year', 'NAID', 'URL', 'Title', 'Image URL') )
-				print "                        \nNew log file created at " + logfile + "\n"
+				print "\n                        New log file created at " + logfile + "\n"
 
 			with open(logfile, 'a') as log :
 				writelog = csv.writer(log, delimiter= '\t')
