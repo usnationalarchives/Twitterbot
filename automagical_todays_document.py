@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import settings, tweepy, requests, json, datetime, random, time, argparse, os
+import settings, tweepy, requests, json, datetime, random, time, argparse, os, csv
 from datetime import date, datetime
 
 # This is where the script logs into the Twitter API using your application's settings.
@@ -52,7 +52,7 @@ rowsurl = 'https://uat.research.archives.gov/api/v1/?resultTypes=item&rows=1&des
 rowsparse = json.loads(requests.get(rowsurl).text)
 rows = rowsparse['opaResponse']['results']['total'] - 1
 
-print "----\nThere were *" + str(rows) + "* records found for this run using the following search query:\n\n" + rowsurl + "\n----"
+print "\n----\nThere were *" + str(rows) + "* records found for this run using the following search query:\n\n" + rowsurl + "\n----"
 
 # The hackish way to make this script continue infinitely.
 
@@ -79,29 +79,53 @@ while x == 0 :
 # Because OPA's API does not have range searching enabled for this field, we are limiting the year manually, by using this if statement to make the script re-run the search with a new random integer until it finds a result within the range.
 
 	if loweryear < int(year) < upperyear :
-
-# This prints the image URL and tweet text just so we can watch the bot in the command line as it works. It will print before actually posting the tweet, so that if there is an error, we can see what the last tweet it tried was.
-		
-		print "\n\nImage found to tweet:   " + imageurl + "\n"
-		print "Text of tweet:          On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n                        \"" +  title [0:42] + "...\" #OTD #TDiH\n                        uat.research.archives.gov/id/" + NAID if len(title) > 45 else "Text of tweet:          On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n                        \"" +  title + "\" #OTD #TDiH\n                        uat.research.archives.gov/id/" + NAID 
-
+	
 # This will download the file using the URL from the query.
 
 		r = requests.get(imageurl, stream=True)
 		with open(filename, "wb") as image :
 			image.write(r.content)
+		filesize = os.stat(filename).st_size
+		if filesize < 700000 :
+		
+# This prints the image URL and tweet text just so we can watch the bot in the command line as it works. It will print before actually posting the tweet, so that if there is an error, we can see what the last tweet it tried was.
+		
+			print "\n\nImage found to tweet:   " + imageurl + "\n"
+			print "Text of tweet:          On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n                        \"" +  title [0:42] + "...\" #OTD #TDiH\n                        uat.research.archives.gov/id/" + NAID if len(title) > 45 else "Text of tweet:          On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n                        \"" +  title + "\" #OTD #TDiH\n                        uat.research.archives.gov/id/" + NAID 
 
 # Here's the actual posting of the tweet, using tweepy. If the title is already 60 characters or less, it does not truncate. Otherwise, the title field is automatically truncated at 57 characters (the extra three characters for the "..."), so that the tweets are all 140 characters exactly, or less.
 
-		api.update_with_media(filename, "On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n\"" +  title [0:42] + "...\" #OTD #TDiH\nuat.research.archives.gov/id/" + NAID if len(title) > 45 else "On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n\"" +  title + "\" #OTD #TDiH\nuat.research.archives.gov/id/" + NAID)
+			api.update_with_media(filename, "On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n\"" +  title [0:42] + "...\" #OTD #TDiH\nuat.research.archives.gov/id/" + NAID if len(title) > 45 else "On today's date (" + str(d.month) + "/" + str(d.day) + ") in " + year + ":\n\"" +  title + "\" #OTD #TDiH\nuat.research.archives.gov/id/" + NAID)
 		
-# Wait until after successful update to print "posted" in command line, and then delete the file it downloaded.
-		print "                            ...posted! (at " + str(datetime.now()) + ")"
-		os.remove(filename)
+# Create a self-updating log file.
+
+			logfile = str(d.month) + '-' + str(d.day) + '-' + str(d.year) + '.csv'
+			if os.path.isfile(logfile) is False :
+				with open(logfile, 'wt') as begin :
+					writelog = csv.writer(begin)
+					writelog.writerow( ('Date', 'Year', 'NAID', 'URL', 'Title', 'Image URL') )
+				print "\nNew log file created at " + logfile
+
+			with open(logfile, 'a') as log :
+				writelog = csv.writer(log)
+				writelog.writerow( (str(d.month) + '-' + str(d.day), year, NAID, 'https://uat.research.archives.gov/id/' + NAID, title, imageurl) )
+				log.close()
+							
+# Wait until after successful update and logging to print "posted" in command line, and then delete the file it downloaded.
+		
+			print "                            ...posted! (at " + str(datetime.now()) + " and logged in " + logfile + ")"
+			os.remove(filename)
 		
 # This tells the script to run the bit inside the while loop again, randomly generating a new tweet every 10 minutes. 
 
-		time.sleep(rate)
+			time.sleep(rate)
+			
+# When the script encounters a result that is too large for the Twitter image upload limit, it prints the NAID and file size and immediately restarts without sleeping. This is how it retries continuously until it finds a record under the limit.
+
+		else :
+		
+			os.remove(filename)
+			print "                       Found NAID " + NAID + " with file size ~" + str(filesize / 1000000) + " MB. Repeating..."
 
 # When the script encounters a result outside of a date range specified, it prints the NAID and year and immediately restarts without sleeping. This is how it retries continuously until it finds a record within the range.
 
