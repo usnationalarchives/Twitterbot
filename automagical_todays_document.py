@@ -99,15 +99,15 @@ while x == 0 :
 		
 # Create a self-updating log file.
 
-			logfile = str(d.month) + '-' + str(d.day) + '-' + str(d.year) + '.csv'
+			logfile = str(d.month) + '-' + str(d.day) + '-' + str(d.year) + '.tsv'
 			if os.path.isfile(logfile) is False :
 				with open(logfile, 'wt') as begin :
-					writelog = csv.writer(begin)
+					writelog = csv.writer(begin, delimiter= '\t')
 					writelog.writerow( ('Date', 'Year', 'NAID', 'URL', 'Title', 'Image URL') )
-				print "\nNew log file created at " + logfile
+				print "                        \nNew log file created at " + logfile + "\n"
 
 			with open(logfile, 'a') as log :
-				writelog = csv.writer(log)
+				writelog = csv.writer(log, delimiter= '\t')
 				writelog.writerow( (str(d.month) + '-' + str(d.day), year, NAID, 'https://uat.research.archives.gov/id/' + NAID, title, imageurl) )
 				log.close()
 							
