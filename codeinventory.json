@@ -1,0 +1,17 @@
+﻿{
+  "name": "NARA Catalog API Twitterbot",
+  "description": "Experimental Twitterbot that constructs a fielded search query to NARA's online catalog API using the parameters provided, and then extracts the necessary metadata fields to form a tweet.",
+  "license": "https://github.com/usnationalarchives/Twitterbot/commit/45b945c8e0acc908272ee393624c027db3d81502",
+  "openSourceProject": 1,
+  "governmentWideReuseProject": 1,
+  "tags": [
+    "NARA",
+    "api",
+    "catalog",
+    "twitterbot",
+    "Python"
+  ],
+  "contact": {
+    "email": "leslie.johnston@nara.gov"
+  }
+}
